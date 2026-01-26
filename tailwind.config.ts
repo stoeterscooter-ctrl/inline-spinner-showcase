@@ -80,10 +80,63 @@ export default {
             height: "0",
           },
         },
+        "dash": {
+          "0%": {
+            strokeDasharray: "1, 200",
+            strokeDashoffset: "0",
+          },
+          "50%": {
+            strokeDasharray: "45, 200",
+            strokeDashoffset: "-15",
+          },
+          "100%": {
+            strokeDasharray: "45, 200",
+            strokeDashoffset: "-62",
+          },
+        },
+        "spin-ease": {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "50%": {
+            transform: "rotate(540deg)",
+          },
+          "100%": {
+            transform: "rotate(720deg)",
+          },
+        },
+        "pulse-arc": {
+          "0%, 100%": {
+            strokeDasharray: "15.7, 47.1",
+            opacity: "1",
+          },
+          "50%": {
+            strokeDasharray: "47.1, 15.7",
+            opacity: "0.6",
+          },
+        },
+        "chase": {
+          "0%": {
+            strokeDasharray: "1, 62.8",
+            strokeDashoffset: "0",
+          },
+          "50%": {
+            strokeDasharray: "47, 62.8",
+            strokeDashoffset: "-15",
+          },
+          "100%": {
+            strokeDasharray: "47, 62.8",
+            strokeDashoffset: "-62",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "dash": "dash 1.5s ease-in-out infinite",
+        "spin-ease": "spin-ease 1.4s ease-in-out infinite",
+        "pulse-arc": "pulse-arc 1s ease-in-out infinite",
+        "chase": "chase 1.2s ease-in-out infinite",
       },
     },
   },
