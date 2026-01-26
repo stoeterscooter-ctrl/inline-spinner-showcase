@@ -129,6 +129,30 @@ export default {
             strokeDashoffset: "-62",
           },
         },
+        "fade-sequence": {
+          "0%, 100%": {
+            opacity: "1",
+          },
+          "50%": {
+            opacity: "0.15",
+          },
+        },
+        "orbit": {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "100%": {
+            transform: "rotate(360deg)",
+          },
+        },
+        "gradient-rotate": {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "100%": {
+            transform: "rotate(360deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -137,6 +161,9 @@ export default {
         "spin-ease": "spin-ease 1.4s ease-in-out infinite",
         "pulse-arc": "pulse-arc 1s ease-in-out infinite",
         "chase": "chase 1.2s ease-in-out infinite",
+        "fade-sequence": "fade-sequence 1s ease-in-out infinite",
+        "orbit": "orbit 1.5s linear infinite",
+        "gradient-rotate": "gradient-rotate 1s linear infinite",
       },
     },
   },
