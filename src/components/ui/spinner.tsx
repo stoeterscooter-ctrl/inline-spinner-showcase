@@ -1,27 +1,19 @@
 import { cn } from "@/lib/utils";
+import { type CSSProperties } from "react";
 
 export type SpinnerVariant =
-  | "border"
-  | "thin"
-  | "thick"
-  | "dual"
-  | "half"
-  | "quarter"
-  | "material"
-  | "eased"
-  | "pulse"
-  | "chase"
-  | "blade"
-  | "dots"
-  | "orbit"
-  | "gradient"
-  | "multi-ring";
+  | "border" | "thin" | "thick" | "dual" | "half" | "quarter"
+  | "material" | "eased" | "pulse" | "chase"
+  | "blade" | "dots" | "orbit" | "gradient" | "multi-ring";
 
 export type SpinnerSize = "xs" | "sm" | "md" | "lg";
+export type SpinnerColor = "default" | "primary" | "foreground" | "destructive";
 
 interface SpinnerProps {
   variant?: SpinnerVariant;
   size?: SpinnerSize;
+  color?: SpinnerColor;
+  speed?: number;
   className?: string;
 }
 
@@ -32,179 +24,175 @@ const sizeMap = {
   lg: { container: "w-6 h-6", stroke: 3, bladeScale: 1.2 },
 };
 
-export function Spinner({ variant = "border", size = "md", className }: SpinnerProps) {
-  const { container, stroke, bladeScale } = sizeMap[size];
+const colorMap: Record<SpinnerColor, string> = {
+  default: "text-muted-foreground",
+  primary: "text-primary",
+  foreground: "text-foreground",
+  destructive: "text-destructive",
+};
 
-  // CSS-based border spinners
+// Border track: currentColor at low opacity. Active sides: full currentColor.
+const borderStyle = (activeSides: string[], trackOpacity = 25): CSSProperties => ({
+  borderColor: `color-mix(in srgb, currentColor ${trackOpacity}%, transparent)`,
+  ...Object.fromEntries(activeSides.map((s) => [`border${s}Color`, "currentColor"])),
+});
+
+// Transparent track — no visible track, only active sides
+const borderTransparent = (activeSides: string[]): CSSProperties => ({
+  borderColor: "transparent",
+  ...Object.fromEntries(activeSides.map((s) => [`border${s}Color`, "currentColor"])),
+});
+
+export function Spinner({
+  variant = "border",
+  size = "md",
+  color = "default",
+  speed = 1,
+  className,
+}: SpinnerProps) {
+  const { container, stroke, bladeScale } = sizeMap[size];
+  const col = colorMap[color];
+  const dur = (ms: number): CSSProperties =>
+    speed !== 1 ? { animationDuration: `${ms / speed}ms` } : {};
+  const t = (seconds: number) => seconds / speed;
+
+  // ── Border variants ────────────────────────────────────────────
   if (variant === "border") {
     return (
       <div
-        className={cn(
-          container,
-          "border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin",
-          className
-        )}
+        className={cn(container, col, "border-2 rounded-full animate-spin", className)}
+        style={{ ...borderStyle(["Top"]), ...dur(1000) }}
       />
     );
   }
-
   if (variant === "thin") {
     return (
       <div
-        className={cn(
-          container,
-          "border border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin",
-          className
-        )}
+        className={cn(container, col, "border rounded-full animate-spin", className)}
+        style={{ ...borderStyle(["Top"]), ...dur(1000) }}
       />
     );
   }
-
   if (variant === "thick") {
     return (
       <div
-        className={cn(
-          container,
-          "border-[3px] border-muted-foreground/20 border-t-muted-foreground rounded-full animate-spin",
-          className
-        )}
+        className={cn(container, col, "border-[3px] rounded-full animate-spin", className)}
+        style={{ ...borderStyle(["Top"], 20), ...dur(1000) }}
       />
     );
   }
-
   if (variant === "dual") {
     return (
       <div
-        className={cn(
-          container,
-          "border-2 border-muted-foreground/30 border-t-muted-foreground border-b-muted-foreground rounded-full animate-spin",
-          className
-        )}
+        className={cn(container, col, "border-2 rounded-full animate-spin", className)}
+        style={{ ...borderStyle(["Top", "Bottom"]), ...dur(1000) }}
       />
     );
   }
-
   if (variant === "half") {
     return (
       <div
-        className={cn(
-          container,
-          "border-2 border-transparent border-t-muted-foreground border-r-muted-foreground rounded-full animate-spin",
-          className
-        )}
+        className={cn(container, col, "border-2 rounded-full animate-spin", className)}
+        style={{ ...borderTransparent(["Top", "Right"]), ...dur(1000) }}
       />
     );
   }
-
   if (variant === "quarter") {
     return (
       <div
-        className={cn(
-          container,
-          "border-2 border-transparent border-t-muted-foreground rounded-full animate-spin",
-          className
-        )}
+        className={cn(container, col, "border-2 rounded-full animate-spin", className)}
+        style={{ ...borderTransparent(["Top"]), ...dur(1000) }}
       />
     );
   }
 
-  // SVG-based spinners
+  // ── SVG spinners ───────────────────────────────────────────────
   if (variant === "material") {
     return (
-      <svg className={cn(container, "animate-[spin_2s_linear_infinite]", className)} viewBox="0 0 24 24">
+      <svg
+        className={cn(container, col, "animate-[spin_2s_linear_infinite]", className)}
+        viewBox="0 0 24 24"
+        style={dur(2000)}
+      >
         <circle
-          className="stroke-muted-foreground animate-dash"
-          cx="12"
-          cy="12"
-          r="10"
-          fill="none"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          style={{ strokeDasharray: "1, 200", strokeDashoffset: 0 }}
+          className="animate-dash"
+          cx="12" cy="12" r="10" fill="none"
+          stroke="currentColor" strokeWidth={stroke} strokeLinecap="round"
+          style={{ strokeDasharray: "1, 200", strokeDashoffset: 0, ...dur(1500) }}
         />
       </svg>
     );
   }
-
   if (variant === "eased") {
     return (
-      <svg className={cn(container, "animate-spin-ease", className)} viewBox="0 0 24 24">
+      <svg
+        className={cn(container, col, "animate-spin-ease", className)}
+        viewBox="0 0 24 24"
+        style={dur(1400)}
+      >
         <circle
-          className="stroke-muted-foreground"
-          cx="12"
-          cy="12"
-          r="10"
-          fill="none"
-          strokeWidth={stroke}
-          strokeLinecap="round"
+          cx="12" cy="12" r="10" fill="none"
+          stroke="currentColor" strokeWidth={stroke} strokeLinecap="round"
           strokeDasharray="31.4 31.4"
         />
       </svg>
     );
   }
-
   if (variant === "pulse") {
     return (
-      <svg className={cn(container, "animate-spin", className)} viewBox="0 0 24 24">
+      <svg
+        className={cn(container, col, "animate-spin", className)}
+        viewBox="0 0 24 24"
+        style={dur(1000)}
+      >
         <circle
-          className="stroke-muted-foreground/20"
-          cx="12"
-          cy="12"
-          r="10"
-          fill="none"
-          strokeWidth={stroke - 0.5}
+          cx="12" cy="12" r="10" fill="none"
+          stroke="currentColor" strokeWidth={stroke - 0.5} opacity={0.2}
         />
         <circle
-          className="stroke-muted-foreground animate-pulse-arc"
-          cx="12"
-          cy="12"
-          r="10"
-          fill="none"
-          strokeWidth={stroke - 0.5}
-          strokeLinecap="round"
-          style={{ strokeDasharray: "15.7 47.1" }}
+          className="animate-pulse-arc"
+          cx="12" cy="12" r="10" fill="none"
+          stroke="currentColor" strokeWidth={stroke - 0.5} strokeLinecap="round"
+          style={{ strokeDasharray: "15.7 47.1", ...dur(1000) }}
         />
       </svg>
     );
   }
-
   if (variant === "chase") {
     return (
-      <svg className={cn(container, "animate-[spin_0.8s_linear_infinite]", className)} viewBox="0 0 24 24">
+      <svg
+        className={cn(container, col, "animate-[spin_0.8s_linear_infinite]", className)}
+        viewBox="0 0 24 24"
+        style={dur(800)}
+      >
         <circle
-          className="stroke-muted-foreground animate-chase"
-          cx="12"
-          cy="12"
-          r="10"
-          fill="none"
-          strokeWidth={stroke}
-          strokeLinecap="round"
+          className="animate-chase"
+          cx="12" cy="12" r="10" fill="none"
+          stroke="currentColor" strokeWidth={stroke} strokeLinecap="round"
+          style={dur(1200)}
         />
       </svg>
     );
   }
 
-  // Blade spinner (iOS-style)
+  // ── Blade (iOS-style) ──────────────────────────────────────────
   if (variant === "blade") {
     const blades = 8;
     return (
-      <div className={cn(container, "relative", className)}>
+      <div className={cn(container, col, "relative", className)}>
         {Array.from({ length: blades }).map((_, i) => (
           <div
             key={i}
             className="absolute inset-0 animate-fade-sequence"
             style={{
               transform: `rotate(${i * (360 / blades)}deg)`,
-              animationDelay: `${-i * (1 / blades)}s`,
+              animationDelay: `${-t(i * (1000 / blades))}ms`,
+              ...dur(1000),
             }}
           >
             <div
-              className="bg-muted-foreground rounded-full mx-auto"
-              style={{
-                width: `${2 * bladeScale}px`,
-                height: `${6 * bladeScale}px`,
-                marginTop: `${1 * bladeScale}px`,
-              }}
+              className="bg-current rounded-full mx-auto"
+              style={{ width: `${2 * bladeScale}px`, height: `${6 * bladeScale}px`, marginTop: `${bladeScale}px` }}
             />
           </div>
         ))}
@@ -212,25 +200,51 @@ export function Spinner({ variant = "border", size = "md", className }: SpinnerP
     );
   }
 
-  // Fading dots
+  // ── Fading dots ────────────────────────────────────────────────
   if (variant === "dots") {
     const dots = 8;
     return (
-      <div className={cn(container, "relative", className)}>
+      <div className={cn(container, col, "relative", className)}>
         {Array.from({ length: dots }).map((_, i) => (
           <div
             key={i}
             className="absolute inset-0 flex justify-center animate-fade-sequence"
             style={{
               transform: `rotate(${i * (360 / dots)}deg)`,
-              animationDelay: `${-i * (1 / dots)}s`,
+              animationDelay: `${-t(i * (1000 / dots))}ms`,
+              ...dur(1000),
             }}
           >
             <div
-              className="bg-muted-foreground rounded-full"
+              className="bg-current rounded-full"
+              style={{ width: `${3 * bladeScale}px`, height: `${3 * bladeScale}px` }}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // ── Orbit dots ─────────────────────────────────────────────────
+  if (variant === "orbit") {
+    return (
+      <div className={cn(container, col, "relative", className)}>
+        {[
+          { opacity: 1, scale: 3, delay: 0 },
+          { opacity: 0.6, scale: 2.5, delay: -500 },
+          { opacity: 0.3, scale: 2, delay: -1000 },
+        ].map((dot, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 animate-orbit"
+            style={{ animationDelay: `${t(dot.delay)}ms`, ...dur(1500) }}
+          >
+            <div
+              className="bg-current rounded-full mx-auto"
               style={{
-                width: `${3 * bladeScale}px`,
-                height: `${3 * bladeScale}px`,
+                width: `${dot.scale * bladeScale}px`,
+                height: `${dot.scale * bladeScale}px`,
+                opacity: dot.opacity,
               }}
             />
           </div>
@@ -239,36 +253,14 @@ export function Spinner({ variant = "border", size = "md", className }: SpinnerP
     );
   }
 
-  // Orbit dots
-  if (variant === "orbit") {
-    return (
-      <div className={cn(container, "relative", className)}>
-        <div className="absolute inset-0 animate-orbit">
-          <div
-            className="bg-muted-foreground rounded-full mx-auto"
-            style={{ width: `${3 * bladeScale}px`, height: `${3 * bladeScale}px` }}
-          />
-        </div>
-        <div className="absolute inset-0 animate-orbit" style={{ animationDelay: "-0.5s" }}>
-          <div
-            className="bg-muted-foreground/60 rounded-full mx-auto"
-            style={{ width: `${2.5 * bladeScale}px`, height: `${2.5 * bladeScale}px` }}
-          />
-        </div>
-        <div className="absolute inset-0 animate-orbit" style={{ animationDelay: "-1s" }}>
-          <div
-            className="bg-muted-foreground/30 rounded-full mx-auto"
-            style={{ width: `${2 * bladeScale}px`, height: `${2 * bladeScale}px` }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // Gradient arc
+  // ── Gradient arc ───────────────────────────────────────────────
   if (variant === "gradient") {
     return (
-      <svg className={cn(container, "animate-gradient-rotate", className)} viewBox="0 0 24 24">
+      <svg
+        className={cn(container, col, "animate-gradient-rotate", className)}
+        viewBox="0 0 24 24"
+        style={dur(1000)}
+      >
         <defs>
           <linearGradient id="spinner-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
@@ -277,27 +269,29 @@ export function Spinner({ variant = "border", size = "md", className }: SpinnerP
           </linearGradient>
         </defs>
         <circle
-          cx="12"
-          cy="12"
-          r="10"
-          fill="none"
-          stroke="url(#spinner-gradient)"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          className="text-muted-foreground"
+          cx="12" cy="12" r="10" fill="none"
+          stroke="url(#spinner-gradient)" strokeWidth={stroke} strokeLinecap="round"
         />
       </svg>
     );
   }
 
-  // Multi-ring
+  // ── Multi-ring ─────────────────────────────────────────────────
   if (variant === "multi-ring") {
     return (
-      <div className={cn(container, "relative", className)}>
-        <div className="absolute inset-0 border-2 border-transparent border-t-muted-foreground rounded-full animate-spin" />
+      <div className={cn(container, col, "relative", className)}>
         <div
-          className="absolute inset-[3px] border border-transparent border-t-muted-foreground/60 rounded-full animate-spin"
-          style={{ animationDirection: "reverse", animationDuration: "0.6s" }}
+          className="absolute inset-0 border-2 rounded-full animate-spin"
+          style={{ ...borderTransparent(["Top"]), ...dur(1000) }}
+        />
+        <div
+          className="absolute inset-[3px] border rounded-full animate-spin"
+          style={{
+            ...borderTransparent(["Top"]),
+            opacity: 0.6,
+            animationDirection: "reverse",
+            ...dur(600),
+          }}
         />
       </div>
     );
@@ -307,19 +301,9 @@ export function Spinner({ variant = "border", size = "md", className }: SpinnerP
 }
 
 export const spinnerVariants: SpinnerVariant[] = [
-  "border",
-  "thin",
-  "thick",
-  "dual",
-  "half",
-  "quarter",
-  "material",
-  "eased",
-  "pulse",
-  "chase",
-  "blade",
-  "dots",
-  "orbit",
-  "gradient",
-  "multi-ring",
+  "border", "thin", "thick", "dual", "half", "quarter",
+  "material", "eased", "pulse", "chase",
+  "blade", "dots", "orbit", "gradient", "multi-ring",
 ];
+
+export const spinnerColors: SpinnerColor[] = ["default", "primary", "foreground", "destructive"];

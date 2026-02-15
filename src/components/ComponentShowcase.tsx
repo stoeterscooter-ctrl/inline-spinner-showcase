@@ -1,49 +1,75 @@
 import { type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 interface ComponentShowcaseProps {
   title: string;
-  description: string;
+  subtitle: string;
+  fileName?: string;
+  fileSource?: string;
   preview: ReactNode;
   configurator: ReactNode;
-  children?: ReactNode; // use cases, extras below the fold
+  useCases?: ReactNode;
+  codePreview?: string;
 }
 
 export function ComponentShowcase({
   title,
-  description,
+  subtitle,
+  fileName,
+  fileSource,
   preview,
   configurator,
-  children,
+  useCases,
+  codePreview,
 }: ComponentShowcaseProps) {
+  const handleDownload = () => {
+    if (!fileSource || !fileName) return;
+    const blob = new Blob([fileSource], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero — fills viewport */}
-      <section className="h-screen flex flex-col">
-        {/* Top bar: title + description */}
-        <div className="px-10 pt-10 pb-6 shrink-0">
-          <h1 className="text-xl font-medium text-foreground">{title}</h1>
-          <p className="text-sm text-muted-foreground mt-1 max-w-md">{description}</p>
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 h-12 border-b border-border shrink-0">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-sm font-medium text-foreground">{title}</h1>
+          <span className="text-xs text-muted-foreground">{subtitle}</span>
         </div>
-
-        {/* Preview + Configurator */}
-        <div className="flex-1 flex min-h-0 mx-10 mb-10 rounded-lg border border-border overflow-hidden">
-          {/* Preview */}
-          <div className="flex-1 flex items-center justify-center bg-card/50">
-            {preview}
-          </div>
-
-          {/* Configurator sidebar */}
-          <div className="w-52 border-l border-border bg-card p-5 overflow-y-auto flex flex-col gap-6">
-            {configurator}
-          </div>
+        <div className="flex items-center gap-2">
+          {codePreview && (
+            <code className="text-[11px] text-muted-foreground font-mono bg-muted px-2 py-1 rounded">
+              {codePreview}
+            </code>
+          )}
+          {fileName && fileSource && (
+            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5" onClick={handleDownload}>
+              <Download className="h-3 w-3" />
+              {fileName}
+            </Button>
+          )}
         </div>
-      </section>
+      </div>
 
-      {/* Below the fold */}
-      {children && (
-        <section className="px-10 py-16">
-          {children}
-        </section>
+      {/* Main: Preview + Configurator */}
+      <div className="flex-1 flex min-h-0">
+        <div className="flex-1 flex items-center justify-center">{preview}</div>
+        <div className="w-52 border-l border-border p-4 overflow-y-auto flex flex-col gap-5 shrink-0">
+          {configurator}
+        </div>
+      </div>
+
+      {/* Bottom strip: use cases */}
+      {useCases && (
+        <div className="border-t border-border px-6 h-14 flex items-center gap-3 shrink-0">
+          {useCases}
+        </div>
       )}
     </div>
   );
