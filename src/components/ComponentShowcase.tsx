@@ -65,17 +65,6 @@ export function ComponentShowcase({
               )}
             </Button>
           )}
-          {fileName && fileSource && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 text-[11px] gap-1.5 px-2"
-              onClick={handleDownload}
-            >
-              <Download className="h-3 w-3" />
-              {fileName}
-            </Button>
-          )}
         </div>
       </div>
 

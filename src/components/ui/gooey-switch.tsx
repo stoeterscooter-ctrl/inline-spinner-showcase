@@ -75,17 +75,15 @@ export function GooeySwitch({
   const onToggle = useCallback(() => {
     setIsOn((prev) => {
       const next = !prev;
-      if (!hasAnim) {
-        const target = next ? layout.travel : 0;
-        mainX.set(target);
-        trailX1.set(target);
-        trailX2.set(target);
-        trailX3.set(target);
-      }
+      const target = next ? layout.travel : 0;
+      mainX.set(target);
+      trailX1.set(target);
+      trailX2.set(target);
+      trailX3.set(target);
       onChange?.(next);
       return next;
     });
-  }, [hasAnim, layout.travel, onChange, mainX, trailX1, trailX2, trailX3]);
+  }, [layout.travel, onChange, mainX, trailX1, trailX2, trailX3]);
 
   return (
     <div className="relative">
