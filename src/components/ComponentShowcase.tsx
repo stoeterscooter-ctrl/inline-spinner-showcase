@@ -1,6 +1,6 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Copy, Check } from "lucide-react";
 
 interface ComponentShowcaseProps {
   title: string;
@@ -23,6 +23,8 @@ export function ComponentShowcase({
   useCases,
   codePreview,
 }: ComponentShowcaseProps) {
+  const [copied, setCopied] = useState(false);
+
   const handleDownload = () => {
     if (!fileSource || !fileName) return;
     const blob = new Blob([fileSource], { type: "text/plain" });
@@ -34,8 +36,16 @@ export function ComponentShowcase({
     URL.revokeObjectURL(url);
   };
 
+  const handleCopy = () => {
+    if (!fileSource) return;
+    navigator.clipboard.writeText(fileSource).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-full flex flex-col bg-background overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 h-12 border-b border-border shrink-0">
         <div className="flex items-baseline gap-3">
@@ -48,8 +58,27 @@ export function ComponentShowcase({
               {codePreview}
             </code>
           )}
+          {fileSource && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs gap-1.5"
+              onClick={handleCopy}
+            >
+              {copied ? (
+                <><Check className="h-3 w-3" />Copied</>
+              ) : (
+                <><Copy className="h-3 w-3" />Copy</>
+              )}
+            </Button>
+          )}
           {fileName && fileSource && (
-            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5" onClick={handleDownload}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs gap-1.5"
+              onClick={handleDownload}
+            >
               <Download className="h-3 w-3" />
               {fileName}
             </Button>
