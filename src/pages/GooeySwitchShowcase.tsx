@@ -1,7 +1,9 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { GooeySwitch, type GooeySwitchProps, type AnimationCfg } from "@/components/ui/gooey-switch";
 import { ComponentShowcase } from "@/components/ComponentShowcase";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 // @ts-ignore — Vite raw import
 import gooeySwitchSource from "@/components/ui/gooey-switch.tsx?raw";
 
@@ -46,52 +48,29 @@ function SegmentedControl<T extends string>({
   );
 }
 
-function PreviewRow({
-  label,
-  sublabel,
-  switchProps,
-}: {
-  label: string;
-  sublabel: string;
-  switchProps: GooeySwitchProps;
-}) {
-  const [on, setOn] = useState(switchProps.defaultOn ?? false);
-  return (
-    <div className="flex items-center justify-between gap-6 py-3 px-4 rounded-lg border border-border">
-      <div>
-        <div className="text-xs font-medium text-foreground">{label}</div>
-        <div className="text-[11px] text-muted-foreground mt-0.5">{sublabel}</div>
-      </div>
-      <div className="flex items-center gap-3 shrink-0">
-        <span className="text-[11px] tabular-nums text-muted-foreground w-6 text-right">
-          {on ? "on" : "off"}
-        </span>
-        <GooeySwitch
-          {...switchProps}
-          defaultOn={on}
-          onChange={(v) => {
-            setOn(v);
-            switchProps.onChange?.(v);
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
 const GooeySwitchShowcase = () => {
   const [size, setSize] = useState<Size>("lg");
+  const [defaultOn, setDefaultOn] = useState(false);
   const [tweenEnabled, setTweenEnabled] = useState(false);
   const [duration, setDuration] = useState(0.5);
+  const [b0, setB0] = useState(0.25);
+  const [b1, setB1] = useState(0.1);
+  const [b2, setB2] = useState(0.25);
+  const [b3, setB3] = useState(1.0);
+
+  // Key to force remount when defaultOn changes
+  const [key, setKey] = useState(0);
 
   const anim = useMemo<AnimationCfg | undefined>(
-    () => (tweenEnabled ? { duration, bezier: [0.25, 0.1, 0.25, 1] } : undefined),
-    [tweenEnabled, duration]
+    () =>
+      tweenEnabled
+        ? { duration, bezier: [b0, b1, b2, b3] as readonly [number, number, number, number] }
+        : undefined,
+    [tweenEnabled, duration, b0, b1, b2, b3]
   );
 
-  const animMode = tweenEnabled ? "tween" : "spring";
-
-  const codeLine = `<GooeySwitch size="${size}"${tweenEnabled ? ` anim={{ duration: ${duration}, bezier: [0.25, 0.1, 0.25, 1] }}` : ""} />`;
+  const bezierStr = `[${b0}, ${b1}, ${b2}, ${b3}]`;
+  const codeLine = `<GooeySwitch size="${size}"${defaultOn ? " defaultOn" : ""}${tweenEnabled ? ` anim={{ duration: ${duration}, bezier: ${bezierStr} }}` : ""} />`;
 
   return (
     <ComponentShowcase
@@ -102,7 +81,7 @@ const GooeySwitchShowcase = () => {
       codePreview={codeLine}
       preview={
         <div className="flex flex-col items-center gap-8">
-          <GooeySwitch size={size} anim={anim} />
+          <GooeySwitch key={key} size={size} anim={anim} defaultOn={defaultOn} />
           <div className="text-[11px] text-muted-foreground">
             {tweenEnabled ? `tween · ${duration}s` : "spring physics"}
           </div>
@@ -118,75 +97,89 @@ const GooeySwitchShowcase = () => {
             />
           </ConfigSection>
 
-          <ConfigSection label="Animation">
-            <SegmentedControl
-              options={["spring", "tween"]}
-              value={animMode}
-              onChange={(v) => setTweenEnabled(v === "tween")}
-            />
+          <ConfigSection label="Default state">
+            <div className="flex items-center gap-2">
+              <Switch
+                id="default-on"
+                checked={defaultOn}
+                onCheckedChange={(v) => {
+                  setDefaultOn(v);
+                  setKey((k) => k + 1);
+                }}
+              />
+              <Label htmlFor="default-on" className="text-xs text-muted-foreground">
+                {defaultOn ? "On" : "Off"}
+              </Label>
+            </div>
+          </ConfigSection>
+
+          <ConfigSection label="Animation mode">
+            <div className="flex items-center gap-2">
+              <Switch
+                id="tween-mode"
+                checked={tweenEnabled}
+                onCheckedChange={setTweenEnabled}
+              />
+              <Label htmlFor="tween-mode" className="text-xs text-muted-foreground">
+                {tweenEnabled ? "Tween" : "Spring"}
+              </Label>
+            </div>
           </ConfigSection>
 
           {tweenEnabled && (
-            <ConfigSection label={`Duration · ${duration.toFixed(2)}s`}>
-              <Slider
-                value={[duration]}
-                onValueChange={([v]) => setDuration(v)}
-                min={0.2}
-                max={1.2}
-                step={0.05}
-                className="py-1"
-              />
-            </ConfigSection>
-          )}
+            <>
+              <ConfigSection label={`Duration · ${duration.toFixed(2)}s`}>
+                <Slider
+                  value={[duration]}
+                  onValueChange={([v]) => setDuration(v)}
+                  min={0.2}
+                  max={1.2}
+                  step={0.05}
+                  className="py-1"
+                />
+              </ConfigSection>
 
-          <ConfigSection label="Default state">
-            <div className="flex flex-col gap-2">
-              <PreviewRow
-                label="Off → On"
-                sublabel="defaultOn={false}"
-                switchProps={{ size, anim }}
-              />
-              <PreviewRow
-                label="On → Off"
-                sublabel="defaultOn={true}"
-                switchProps={{ size, anim, defaultOn: true }}
-              />
-            </div>
-          </ConfigSection>
+              <ConfigSection label="Bezier curve">
+                <div className="flex flex-col gap-2">
+                  {[
+                    { label: "x1", value: b0, set: setB0 },
+                    { label: "y1", value: b1, set: setB1 },
+                    { label: "x2", value: b2, set: setB2 },
+                    { label: "y2", value: b3, set: setB3 },
+                  ].map(({ label, value, set }) => (
+                    <div key={label} className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted-foreground w-5 shrink-0">{label}</span>
+                      <Slider
+                        value={[value]}
+                        onValueChange={([v]) => set(v)}
+                        min={0}
+                        max={1}
+                        step={0.05}
+                        className="flex-1"
+                      />
+                      <span className="text-[10px] tabular-nums text-muted-foreground w-7 text-right">
+                        {value.toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </ConfigSection>
+            </>
+          )}
         </>
       }
       useCases={
-        <>
-          <div className="flex items-center gap-6">
-            <UseCaseSwitch label="Dark mode" size={size} anim={anim} />
-            <UseCaseSwitch label="Notifications" size={size} anim={anim} defaultOn />
-            <UseCaseSwitch label="Auto-save" size={size} anim={anim} />
-            <UseCaseSwitch label="Analytics" size={size} anim={anim} defaultOn />
-          </div>
-        </>
+        <div className="flex items-center gap-6">
+          {["Dark mode", "Notifications", "Auto-save", "Analytics"].map((label, i) => (
+            <div key={label} className="flex items-center gap-2">
+              <GooeySwitch size="sm" anim={anim} defaultOn={i % 2 === 1} />
+              <span className="text-xs text-muted-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
       }
     />
   );
 };
-
-function UseCaseSwitch({
-  label,
-  size,
-  anim,
-  defaultOn = false,
-}: {
-  label: string;
-  size: Size;
-  anim?: AnimationCfg;
-  defaultOn?: boolean;
-}) {
-  const [on, setOn] = useState(defaultOn);
-  return (
-    <div className="flex items-center gap-2">
-      <GooeySwitch size="sm" anim={anim} defaultOn={on} onChange={setOn} />
-      <span className="text-xs text-muted-foreground">{label}</span>
-    </div>
-  );
-}
 
 export default GooeySwitchShowcase;
