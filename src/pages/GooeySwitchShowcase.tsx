@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { GooeySwitch, type GooeySwitchProps, type AnimationCfg } from "@/components/ui/gooey-switch";
+import { useState, useMemo, useEffect } from "react";
+import { GooeySwitch, type AnimationCfg } from "@/components/ui/gooey-switch";
 import { ComponentShowcase } from "@/components/ComponentShowcase";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -8,6 +8,15 @@ import { Label } from "@/components/ui/label";
 import gooeySwitchSource from "@/components/ui/gooey-switch.tsx?raw";
 
 type Size = "sm" | "md" | "lg";
+
+const COLOR_PRESETS = [
+  { name: "Default", track: "0 0% 18%", trackActive: "0 0% 26%", blob: "0 0% 92%" },
+  { name: "Blue", track: "220 20% 18%", trackActive: "220 50% 30%", blob: "210 100% 70%" },
+  { name: "Green", track: "150 20% 14%", trackActive: "150 40% 24%", blob: "145 70% 60%" },
+  { name: "Purple", track: "270 20% 18%", trackActive: "270 40% 28%", blob: "265 80% 72%" },
+  { name: "Amber", track: "30 20% 16%", trackActive: "35 50% 26%", blob: "40 90% 60%" },
+  { name: "Rose", track: "350 20% 16%", trackActive: "350 45% 28%", blob: "345 80% 65%" },
+] as const;
 
 function ConfigSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -57,9 +66,23 @@ const GooeySwitchShowcase = () => {
   const [b1, setB1] = useState(0.1);
   const [b2, setB2] = useState(0.25);
   const [b3, setB3] = useState(1.0);
-
-  // Key to force remount when defaultOn changes
+  const [colorIdx, setColorIdx] = useState(0);
   const [key, setKey] = useState(0);
+
+  const preset = COLOR_PRESETS[colorIdx];
+
+  // Apply color preset as CSS variables
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--gooey-track", preset.track);
+    root.style.setProperty("--gooey-track-active", preset.trackActive);
+    root.style.setProperty("--gooey-blob", preset.blob);
+    return () => {
+      root.style.removeProperty("--gooey-track");
+      root.style.removeProperty("--gooey-track-active");
+      root.style.removeProperty("--gooey-blob");
+    };
+  }, [preset]);
 
   const anim = useMemo<AnimationCfg | undefined>(
     () =>
@@ -80,10 +103,10 @@ const GooeySwitchShowcase = () => {
       fileSource={gooeySwitchSource}
       codePreview={codeLine}
       preview={
-        <div className="flex flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-6">
           <GooeySwitch key={key} size={size} anim={anim} defaultOn={defaultOn} />
           <div className="text-[11px] text-muted-foreground">
-            {tweenEnabled ? `tween · ${duration}s` : "spring physics"}
+            {tweenEnabled ? `tween · ${duration}s` : "spring physics"} · {preset.name.toLowerCase()}
           </div>
         </div>
       }
@@ -110,6 +133,30 @@ const GooeySwitchShowcase = () => {
               <Label htmlFor="default-on" className="text-xs text-muted-foreground">
                 {defaultOn ? "On" : "Off"}
               </Label>
+            </div>
+          </ConfigSection>
+
+          <ConfigSection label="Color">
+            <div className="grid grid-cols-3 gap-1">
+              {COLOR_PRESETS.map((p, i) => (
+                <button
+                  key={p.name}
+                  onClick={() => setColorIdx(i)}
+                  className={`h-7 rounded text-[10px] transition-colors ${
+                    colorIdx === i
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="flex items-center justify-center gap-1">
+                    <span
+                      className="w-2 h-2 rounded-full shrink-0"
+                      style={{ background: `hsl(${p.blob})` }}
+                    />
+                    {p.name}
+                  </span>
+                </button>
+              ))}
             </div>
           </ConfigSection>
 
@@ -167,16 +214,6 @@ const GooeySwitchShowcase = () => {
             </>
           )}
         </>
-      }
-      useCases={
-        <div className="flex items-center gap-6">
-          {["Dark mode", "Notifications", "Auto-save", "Analytics"].map((label, i) => (
-            <div key={label} className="flex items-center gap-2">
-              <GooeySwitch size="sm" anim={anim} defaultOn={i % 2 === 1} />
-              <span className="text-xs text-muted-foreground">{label}</span>
-            </div>
-          ))}
-        </div>
       }
     />
   );

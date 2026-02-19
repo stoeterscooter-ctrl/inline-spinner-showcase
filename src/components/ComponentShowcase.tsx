@@ -9,7 +9,6 @@ interface ComponentShowcaseProps {
   fileSource?: string;
   preview: ReactNode;
   configurator: ReactNode;
-  useCases?: ReactNode;
   codePreview?: string;
 }
 
@@ -20,7 +19,6 @@ export function ComponentShowcase({
   fileSource,
   preview,
   configurator,
-  useCases,
   codePreview,
 }: ComponentShowcaseProps) {
   const [copied, setCopied] = useState(false);
@@ -47,22 +45,17 @@ export function ComponentShowcase({
   return (
     <div className="h-full flex flex-col bg-background overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 h-12 border-b border-border shrink-0">
-        <div className="flex items-baseline gap-3">
-          <h1 className="text-sm font-medium text-foreground">{title}</h1>
-          <span className="text-xs text-muted-foreground">{subtitle}</span>
+      <div className="flex items-center justify-between px-6 h-11 border-b border-border shrink-0">
+        <div className="flex items-baseline gap-2">
+          <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+          <span className="text-[11px] text-muted-foreground hidden sm:inline">{subtitle}</span>
         </div>
-        <div className="flex items-center gap-2">
-          {codePreview && (
-            <code className="text-[11px] text-muted-foreground font-mono bg-muted px-2 py-1 rounded">
-              {codePreview}
-            </code>
-          )}
+        <div className="flex items-center gap-1.5">
           {fileSource && (
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 text-xs gap-1.5"
+              className="h-7 text-[11px] gap-1.5 px-2"
               onClick={handleCopy}
             >
               {copied ? (
@@ -76,7 +69,7 @@ export function ComponentShowcase({
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 text-xs gap-1.5"
+              className="h-7 text-[11px] gap-1.5 px-2"
               onClick={handleDownload}
             >
               <Download className="h-3 w-3" />
@@ -86,20 +79,20 @@ export function ComponentShowcase({
         </div>
       </div>
 
+      {/* Code preview bar */}
+      {codePreview && (
+        <div className="px-6 py-1.5 border-b border-border bg-muted/30 shrink-0">
+          <code className="text-[11px] text-muted-foreground font-mono">{codePreview}</code>
+        </div>
+      )}
+
       {/* Main: Preview + Configurator */}
       <div className="flex-1 flex min-h-0">
         <div className="flex-1 flex items-center justify-center">{preview}</div>
-        <div className="w-52 border-l border-border p-4 overflow-y-auto flex flex-col gap-5 shrink-0">
+        <div className="w-56 border-l border-border p-4 overflow-y-auto flex flex-col gap-5 shrink-0">
           {configurator}
         </div>
       </div>
-
-      {/* Bottom strip: use cases */}
-      {useCases && (
-        <div className="border-t border-border px-6 h-14 flex items-center gap-3 shrink-0">
-          {useCases}
-        </div>
-      )}
     </div>
   );
 }
