@@ -7,6 +7,7 @@ import { StudioLayout } from "@/components/studio/StudioLayout";
 import { studioComponents } from "@/components/studio/studioComponents";
 import Index from "./pages/Index";
 import ButtonShowcase from "./pages/ButtonShowcase";
+import GooeySwitchShowcase from "./pages/GooeySwitchShowcase";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/button" element={<ButtonShowcase />} />
+            <Route path="/gooey-switch" element={<GooeySwitchShowcase />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
