@@ -171,7 +171,6 @@ const ButtonShowcase = () => {
       codePreview={codeLine}
       preview={preview}
       configurator={configurator}
-      useCases={useCases}
     />
   );
 };
