@@ -20,50 +20,53 @@ const ITEMS = [
 
 export default function Playground() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-xl mx-auto px-6 py-14">
-        <header className="mb-8">
-          <h1 className="text-sm font-mono font-medium text-foreground tracking-tight mb-1">
-            Playground
-          </h1>
-          <p className="text-xs font-mono text-muted-foreground leading-relaxed">
-            Interactive UI components. Self-contained, copy-pasteable.
-          </p>
-        </header>
+    <div className="min-h-screen bg-background font-mono">
+      {/* Full-width section header — matches remcostoeten.nl pattern */}
+      <div className="border-t border-b border-border">
+        <div className="max-w-[520px] mx-auto px-5 py-2.5">
+          <span className="text-xs text-muted-foreground">Playground</span>
+        </div>
+      </div>
 
-        <div className="flex flex-col">
-          {ITEMS.map((item) => (
+      {/* Content container */}
+      <div className="max-w-[520px] mx-auto px-5">
+        <div className="py-6">
+          <p className="text-[13px] text-muted-foreground leading-relaxed">
+            A small collection of interactive UI primitives I've been building.
+            Each component is self-contained and copy-pasteable.
+          </p>
+        </div>
+
+        {/* Component list — bordered card style */}
+        <div className="border border-border rounded-md overflow-hidden">
+          {ITEMS.map((item, i) => (
             <Link
               key={item.title}
               to={item.path}
-              className="group flex items-center justify-between border-t border-border py-4 -mx-4 px-4 transition-colors hover:bg-accent/30"
+              className={`group flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-accent/40 ${
+                i > 0 ? "border-t border-border" : ""
+              }`}
             >
-              <div className="flex items-center gap-4 min-w-0">
-                <div className="w-8 h-8 flex items-center justify-center shrink-0">
-                  {item.preview}
-                </div>
-                <div className="min-w-0">
-                  <h2 className="text-xs font-mono font-medium text-foreground flex items-center gap-1.5">
-                    {item.title}
-                    <ArrowUpRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </h2>
-                  <p className="text-[11px] font-mono text-muted-foreground truncate">
-                    {item.description}
-                  </p>
-                </div>
+              <div className="w-7 h-7 flex items-center justify-center shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+                {item.preview}
               </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-[13px] text-foreground">{item.title}</span>
+                <span className="text-[11px] text-muted-foreground ml-2 hidden sm:inline">
+                  {item.description}
+                </span>
+              </div>
+              <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
             </Link>
           ))}
-          <div className="border-t border-border" />
         </div>
 
-        <div className="mt-6">
+        <div className="py-4">
           <Link
             to="/studio"
-            className="text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
+            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
           >
-            View all in Studio
-            <ArrowUpRight className="w-3 h-3" />
+            Open Studio →
           </Link>
         </div>
       </div>
