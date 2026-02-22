@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { StudioLayout } from "@/components/studio/StudioLayout";
 import { studioComponents } from "@/components/studio/studioComponents";
+import Playground from "./pages/Playground";
 import Index from "./pages/Index";
 import ButtonShowcase from "./pages/ButtonShowcase";
 import GooeySwitchShowcase from "./pages/GooeySwitchShowcase";
@@ -18,15 +19,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <StudioLayout components={studioComponents}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/button" element={<ButtonShowcase />} />
-            <Route path="/gooey-switch" element={<GooeySwitchShowcase />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </StudioLayout>
+        <Routes>
+          {/* Playground landing */}
+          <Route path="/" element={<Playground />} />
+
+          {/* Studio routes */}
+          <Route
+            path="/studio/*"
+            element={
+              <StudioLayout components={studioComponents}>
+                <Routes>
+                  <Route index element={<Index />} />
+                  <Route path="button" element={<ButtonShowcase />} />
+                  <Route path="gooey-switch" element={<GooeySwitchShowcase />} />
+                </Routes>
+              </StudioLayout>
+            }
+          />
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
