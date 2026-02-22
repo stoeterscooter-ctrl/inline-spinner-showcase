@@ -16,47 +16,49 @@ interface StudioLayoutProps {
 
 export function StudioLayout({ components, children }: StudioLayoutProps) {
   return (
-    <div className="h-screen flex overflow-hidden bg-background">
-      {/* Left nav */}
-      <aside className="w-44 shrink-0 border-r border-border flex flex-col">
-        <div className="h-12 flex items-center justify-between px-4 border-b border-border shrink-0">
-          <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
-            Studio
-          </span>
+    <div className="min-h-screen bg-background font-mono">
+      {/* Section header */}
+      <div className="border-t border-b border-border">
+        <div className="max-w-[520px] mx-auto px-5 py-2.5 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Studio</span>
           <NavLink
             to="/"
-            className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
           >
-            ← Back
+            ← Playground
           </NavLink>
         </div>
-        <nav className="flex-1 overflow-y-auto py-2">
+      </div>
+
+      {/* Component tabs */}
+      <div className="max-w-[520px] mx-auto px-5">
+        <nav className="flex gap-0 border-b border-border overflow-x-auto">
           {components.map((c) => (
             <NavLink
               key={c.id}
               to={c.path}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center justify-between px-4 py-1.5 text-xs transition-colors rounded-none",
+                  "px-3 py-2 text-[11px] whitespace-nowrap transition-colors border-b -mb-px",
                   isActive
-                    ? "text-foreground bg-accent"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    ? "text-foreground border-foreground"
+                    : "text-muted-foreground hover:text-foreground border-transparent"
                 )
               }
             >
-              <span>{c.label}</span>
+              {c.label}
               {c.badge && (
-                <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60">
+                <span className="ml-1.5 text-[9px] uppercase tracking-wider text-muted-foreground/60">
                   {c.badge}
                 </span>
               )}
             </NavLink>
           ))}
         </nav>
-      </aside>
 
-      {/* Main content */}
-      <main className="flex-1 min-w-0">{children}</main>
+        {/* Main content */}
+        <main className="py-5">{children}</main>
+      </div>
     </div>
   );
 }
