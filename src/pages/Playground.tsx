@@ -6,76 +6,61 @@ import { ArrowUpRight } from "lucide-react";
 const ITEMS = [
   {
     title: "Spinner",
-    description:
-      "15 variants, 4 sizes, adjustable speed & color. Drop-in loading indicator for any context.",
+    description: "15 variants · 4 sizes · color · speed",
     path: "/studio",
-    preview: (
-      <div className="flex items-center gap-4">
-        <Spinner variant="material" size="md" />
-        <Spinner variant="blade" size="sm" />
-        <Spinner variant="dots" size="sm" />
-      </div>
-    ),
+    preview: <Spinner variant="material" size="sm" />,
   },
   {
     title: "Gooey Switch",
-    description:
-      "Physics-based toggle with SVG goo filter. Spring or tween animation, 3 sizes, customizable palette.",
+    description: "Spring & tween · 3 sizes · custom palette",
     path: "/studio/gooey-switch",
-    preview: (
-      <div className="flex items-center gap-6">
-        <GooeySwitch size="md" />
-        <GooeySwitch size="sm" defaultOn />
-      </div>
-    ),
+    preview: <GooeySwitch size="sm" />,
   },
 ] as const;
 
 export default function Playground() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-6 py-20">
-        {/* Header */}
-        <header className="mb-16">
-          <h1 className="text-sm font-mono font-medium text-foreground tracking-tight mb-2">
+      <div className="max-w-xl mx-auto px-6 py-14">
+        <header className="mb-8">
+          <h1 className="text-sm font-mono font-medium text-foreground tracking-tight mb-1">
             Playground
           </h1>
-          <p className="text-sm font-mono text-muted-foreground leading-relaxed max-w-lg">
-            A collection of interactive UI components I've built. Each one is
-            self-contained, copy-pasteable, and ready to drop into your project.
+          <p className="text-xs font-mono text-muted-foreground leading-relaxed">
+            Interactive UI components. Self-contained, copy-pasteable.
           </p>
         </header>
 
-        {/* Component cards */}
         <div className="flex flex-col">
-          {ITEMS.map((item, i) => (
+          {ITEMS.map((item) => (
             <Link
               key={item.title}
               to={item.path}
-              className="group block border-t border-border py-8 transition-colors hover:bg-accent/30 -mx-6 px-6"
+              className="group flex items-center justify-between border-t border-border py-4 -mx-4 px-4 transition-colors hover:bg-accent/30"
             >
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <h2 className="text-sm font-mono font-medium text-foreground mb-1 flex items-center gap-2">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                  {item.preview}
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-xs font-mono font-medium text-foreground flex items-center gap-1.5">
                     {item.title}
-                    <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </h2>
-                  <p className="text-xs font-mono text-muted-foreground leading-relaxed max-w-md">
+                  <p className="text-[11px] font-mono text-muted-foreground truncate">
                     {item.description}
                   </p>
                 </div>
               </div>
-              <div className="h-20 flex items-center">{item.preview}</div>
             </Link>
           ))}
           <div className="border-t border-border" />
         </div>
 
-        {/* Footer link */}
-        <div className="mt-12">
+        <div className="mt-6">
           <Link
             to="/studio"
-            className="text-xs font-mono text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5"
+            className="text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
           >
             View all in Studio
             <ArrowUpRight className="w-3 h-3" />
