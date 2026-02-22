@@ -19,10 +19,16 @@ export function StudioLayout({ components, children }: StudioLayoutProps) {
     <div className="h-screen flex overflow-hidden bg-background">
       {/* Left nav */}
       <aside className="w-44 shrink-0 border-r border-border flex flex-col">
-        <div className="h-12 flex items-center px-4 border-b border-border shrink-0">
+        <div className="h-12 flex items-center justify-between px-4 border-b border-border shrink-0">
           <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">
             Studio
           </span>
+          <NavLink
+            to="/"
+            className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Back
+          </NavLink>
         </div>
         <nav className="flex-1 overflow-y-auto py-2">
           {components.map((c) => (
