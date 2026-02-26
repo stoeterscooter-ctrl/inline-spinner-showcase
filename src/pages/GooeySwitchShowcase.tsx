@@ -4,6 +4,8 @@ import { ComponentShowcase } from "@/components/ComponentShowcase";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 // @ts-ignore — Vite raw import
 import gooeySwitchSource from "@/components/ui/gooey-switch.tsx?raw";
 
@@ -18,10 +20,10 @@ const COLOR_PRESETS = [
   { name: "Rose", track: "350 20% 16%", trackActive: "350 45% 28%", blob: "345 80% 65%" },
 ] as const;
 
-function ConfigSection({ label, children }: { label: string; children: React.ReactNode }) {
+function ConfigRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 block font-medium">
+      <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block font-medium">
         {label}
       </label>
       {children}
@@ -44,7 +46,7 @@ function SegmentedControl<T extends string>({
         <button
           key={o}
           onClick={() => onChange(o)}
-          className={`flex-1 h-7 rounded text-[11px] transition-colors capitalize ${
+          className={`flex-1 h-6 rounded text-[10px] transition-colors capitalize ${
             value === o
               ? "bg-accent text-accent-foreground"
               : "text-muted-foreground hover:text-foreground"
@@ -58,7 +60,7 @@ function SegmentedControl<T extends string>({
 }
 
 const GooeySwitchShowcase = () => {
-  const [size, setSize] = useState<Size>("lg");
+  const [size, setSize] = useState<Size>("md");
   const [defaultOn, setDefaultOn] = useState(false);
   const [tweenEnabled, setTweenEnabled] = useState(false);
   const [duration, setDuration] = useState(0.5);
@@ -71,7 +73,6 @@ const GooeySwitchShowcase = () => {
 
   const preset = COLOR_PRESETS[colorIdx];
 
-  // Apply color preset as CSS variables
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty("--gooey-track", preset.track);
@@ -98,84 +99,75 @@ const GooeySwitchShowcase = () => {
   return (
     <ComponentShowcase
       title="GooeySwitch"
-      subtitle="physics spring · tween · 3 sizes"
+      subtitle="spring · tween · 3 sizes"
       fileName="gooey-switch.tsx"
       fileSource={gooeySwitchSource}
       codePreview={codeLine}
       preview={
-        <div className="flex flex-col items-center gap-6">
-          <GooeySwitch key={key} size={size} anim={anim} defaultOn={defaultOn} />
-          <div className="text-[11px] text-muted-foreground">
-            {tweenEnabled ? `tween · ${duration}s` : "spring physics"} · {preset.name.toLowerCase()}
-          </div>
-        </div>
+        <GooeySwitch key={key} size={size} anim={anim} defaultOn={defaultOn} />
       }
       configurator={
         <>
-          <ConfigSection label="Size">
-            <SegmentedControl<Size>
-              options={["sm", "md", "lg"]}
-              value={size}
-              onChange={setSize}
-            />
-          </ConfigSection>
-
-          <ConfigSection label="Default state">
-            <div className="flex items-center gap-2">
-              <Switch
-                id="default-on"
-                checked={defaultOn}
-                onCheckedChange={(v) => {
-                  setDefaultOn(v);
-                  setKey((k) => k + 1);
-                }}
+          <div className="grid grid-cols-2 gap-4">
+            <ConfigRow label="Size">
+              <SegmentedControl<Size>
+                options={["sm", "md", "lg"]}
+                value={size}
+                onChange={setSize}
               />
-              <Label htmlFor="default-on" className="text-xs text-muted-foreground">
-                {defaultOn ? "On" : "Off"}
-              </Label>
-            </div>
-          </ConfigSection>
+            </ConfigRow>
 
-          <ConfigSection label="Color">
-            <div className="grid grid-cols-3 gap-1">
+            <ConfigRow label="Default state">
+              <div className="flex items-center gap-2 h-6">
+                <Switch
+                  id="default-on"
+                  checked={defaultOn}
+                  onCheckedChange={(v) => {
+                    setDefaultOn(v);
+                    setKey((k) => k + 1);
+                  }}
+                />
+                <Label htmlFor="default-on" className="text-[10px] text-muted-foreground">
+                  {defaultOn ? "On" : "Off"}
+                </Label>
+              </div>
+            </ConfigRow>
+          </div>
+
+          <ConfigRow label="Color">
+            <div className="flex gap-1.5">
               {COLOR_PRESETS.map((p, i) => (
                 <button
                   key={p.name}
                   onClick={() => setColorIdx(i)}
-                  className={`h-7 rounded text-[10px] transition-colors ${
+                  title={p.name}
+                  className={`w-5 h-5 rounded-full transition-all ${
                     colorIdx === i
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "ring-2 ring-ring ring-offset-1 ring-offset-background scale-110"
+                      : "opacity-70 hover:opacity-100"
                   }`}
-                >
-                  <span className="flex items-center justify-center gap-1">
-                    <span
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{ background: `hsl(${p.blob})` }}
-                    />
-                    {p.name}
-                  </span>
-                </button>
+                  style={{ background: `hsl(${p.blob})` }}
+                />
               ))}
             </div>
-          </ConfigSection>
+          </ConfigRow>
 
-          <ConfigSection label="Animation mode">
+          <ConfigRow label="Animation">
             <div className="flex items-center gap-2">
               <Switch
                 id="tween-mode"
                 checked={tweenEnabled}
                 onCheckedChange={setTweenEnabled}
               />
-              <Label htmlFor="tween-mode" className="text-xs text-muted-foreground">
+              <Label htmlFor="tween-mode" className="text-[10px] text-muted-foreground">
                 {tweenEnabled ? "Tween" : "Spring"}
               </Label>
             </div>
-          </ConfigSection>
+          </ConfigRow>
 
           {tweenEnabled && (
             <>
-              <ConfigSection label={`Duration · ${duration.toFixed(2)}s`}>
+              <ConfigRow label={`Duration · ${duration.toFixed(2)}s`}>
                 <Slider
                   value={[duration]}
                   onValueChange={([v]) => setDuration(v)}
@@ -184,33 +176,39 @@ const GooeySwitchShowcase = () => {
                   step={0.05}
                   className="py-1"
                 />
-              </ConfigSection>
+              </ConfigRow>
 
-              <ConfigSection label="Bezier curve">
-                <div className="flex flex-col gap-2">
-                  {[
-                    { label: "x1", value: b0, set: setB0 },
-                    { label: "y1", value: b1, set: setB1 },
-                    { label: "x2", value: b2, set: setB2 },
-                    { label: "y2", value: b3, set: setB3 },
-                  ].map(({ label, value, set }) => (
-                    <div key={label} className="flex items-center gap-2">
-                      <span className="text-[10px] text-muted-foreground w-5 shrink-0">{label}</span>
-                      <Slider
-                        value={[value]}
-                        onValueChange={([v]) => set(v)}
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        className="flex-1"
-                      />
-                      <span className="text-[10px] tabular-nums text-muted-foreground w-7 text-right">
-                        {value.toFixed(2)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </ConfigSection>
+              <Collapsible>
+                <CollapsibleTrigger className="flex items-center gap-1 text-[10px] uppercase tracking-widest text-muted-foreground font-medium hover:text-foreground transition-colors group w-full">
+                  Bezier curve
+                  <ChevronDown className="h-3 w-3 transition-transform group-data-[state=open]:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="flex flex-col gap-2 pt-2">
+                    {[
+                      { label: "x1", value: b0, set: setB0 },
+                      { label: "y1", value: b1, set: setB1 },
+                      { label: "x2", value: b2, set: setB2 },
+                      { label: "y2", value: b3, set: setB3 },
+                    ].map(({ label, value, set }) => (
+                      <div key={label} className="flex items-center gap-2">
+                        <span className="text-[10px] text-muted-foreground w-5 shrink-0">{label}</span>
+                        <Slider
+                          value={[value]}
+                          onValueChange={([v]) => set(v)}
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          className="flex-1"
+                        />
+                        <span className="text-[10px] tabular-nums text-muted-foreground w-7 text-right">
+                          {value.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </>
           )}
         </>
