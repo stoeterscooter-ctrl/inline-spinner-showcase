@@ -2,6 +2,13 @@ import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 
+export type PropDef = {
+  name: string;
+  type: string;
+  default?: string;
+  description: string;
+};
+
 interface ComponentShowcaseProps {
   title: string;
   subtitle: string;
@@ -10,6 +17,7 @@ interface ComponentShowcaseProps {
   preview: ReactNode;
   configurator: ReactNode;
   codePreview?: string;
+  propsTable?: PropDef[];
 }
 
 export function ComponentShowcase({
@@ -20,6 +28,7 @@ export function ComponentShowcase({
   preview,
   configurator,
   codePreview,
+  propsTable,
 }: ComponentShowcaseProps) {
   const [copied, setCopied] = useState(false);
 
@@ -63,6 +72,35 @@ export function ComponentShowcase({
       {/* Configurator */}
       <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
         {configurator}
+
+        {/* Props table */}
+        {propsTable && propsTable.length > 0 && (
+          <div className="mt-2">
+            <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block font-medium">
+              Props
+            </label>
+            <div className="border border-border rounded overflow-hidden">
+              <table className="w-full text-[10px]">
+                <thead>
+                  <tr className="border-b border-border bg-muted/40">
+                    <th className="text-left px-2 py-1 font-medium text-muted-foreground">Prop</th>
+                    <th className="text-left px-2 py-1 font-medium text-muted-foreground">Type</th>
+                    <th className="text-left px-2 py-1 font-medium text-muted-foreground">Default</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {propsTable.map((p) => (
+                    <tr key={p.name} className="border-b border-border last:border-0">
+                      <td className="px-2 py-1 font-mono text-foreground">{p.name}</td>
+                      <td className="px-2 py-1 font-mono text-muted-foreground">{p.type}</td>
+                      <td className="px-2 py-1 font-mono text-muted-foreground">{p.default ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Code preview */}
