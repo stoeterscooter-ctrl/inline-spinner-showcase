@@ -7,7 +7,6 @@ import { StudioLayout } from "@/components/studio/StudioLayout";
 import { studioComponents } from "@/components/studio/studioComponents";
 import Playground from "./pages/Playground";
 import Index from "./pages/Index";
-import ButtonShowcase from "./pages/ButtonShowcase";
 import GooeySwitchShowcase from "./pages/GooeySwitchShowcase";
 import NotFound from "./pages/NotFound";
 
@@ -30,7 +29,6 @@ const App = () => (
               <StudioLayout components={studioComponents}>
                 <Routes>
                   <Route index element={<Index />} />
-                  <Route path="button" element={<ButtonShowcase />} />
                   <Route path="gooey-switch" element={<GooeySwitchShowcase />} />
                 </Routes>
               </StudioLayout>

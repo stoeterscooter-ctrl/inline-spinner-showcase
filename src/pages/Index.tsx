@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
   Spinner,
   spinnerVariants,
@@ -7,13 +7,13 @@ import {
   type SpinnerSize,
   type SpinnerColor,
 } from "@/components/ui/spinner";
-import { ComponentShowcase } from "@/components/ComponentShowcase";
+import { ComponentShowcase, type PropDef } from "@/components/ComponentShowcase";
+import { ConfigRow } from "@/components/studio/ConfigRow";
+import { SegmentedControl } from "@/components/studio/SegmentedControl";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 // @ts-ignore — Vite raw import
 import spinnerSource from "@/components/ui/spinner.tsx?raw";
-
-const sizes: SpinnerSize[] = ["xs", "sm", "md", "lg"];
 
 const variantLabels: Record<SpinnerVariant, string> = {
   border: "Border", thin: "Thin", thick: "Thick", dual: "Dual", half: "Half",
@@ -33,16 +33,13 @@ const colorSwatches: Record<SpinnerColor, string> = {
   destructive: "bg-destructive",
 };
 
-function ConfigRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block font-medium">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
+const PROPS: PropDef[] = [
+  { name: "variant", type: "SpinnerVariant", default: '"border"', description: "Visual style of the spinner" },
+  { name: "size", type: '"xs" | "sm" | "md" | "lg"', default: '"md"', description: "Spinner dimensions" },
+  { name: "color", type: "SpinnerColor", default: '"default"', description: "Color theme" },
+  { name: "speed", type: "number", default: "1", description: "Animation speed multiplier" },
+  { name: "className", type: "string", default: "—", description: "Additional CSS classes" },
+];
 
 const Index = () => {
   const [variant, setVariant] = useState<SpinnerVariant>("material");
@@ -59,6 +56,7 @@ const Index = () => {
       fileName="spinner.tsx"
       fileSource={spinnerSource}
       codePreview={codeLine}
+      propsTable={PROPS}
       preview={<Spinner variant={variant} size={size} color={color} speed={speed} />}
       configurator={
         <>
@@ -79,19 +77,11 @@ const Index = () => {
             </ConfigRow>
 
             <ConfigRow label="Size">
-              <div className="flex gap-0.5">
-                {sizes.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSize(s)}
-                    className={`flex-1 h-6 rounded text-[10px] transition-colors ${
-                      size === s ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl<SpinnerSize>
+                options={["xs", "sm", "md", "lg"]}
+                value={size}
+                onChange={setSize}
+              />
             </ConfigRow>
           </div>
 
