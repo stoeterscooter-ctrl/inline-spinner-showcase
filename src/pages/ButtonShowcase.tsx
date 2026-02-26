@@ -25,10 +25,10 @@ function useDemoButton(delay = 1400) {
   return { state, trigger };
 }
 
-function ConfigSection({ label, children }: { label: string; children: React.ReactNode }) {
+function ConfigRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 block font-medium">
+      <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block font-medium">
         {label}
       </label>
       {children}
@@ -62,7 +62,7 @@ const ButtonShowcase = () => {
 
   const configurator = (
     <>
-      <ConfigSection label="Variant">
+      <ConfigRow label="Variant">
         <div className="flex flex-col gap-0.5">
           {variants.map((v) => (
             <button
@@ -78,9 +78,9 @@ const ButtonShowcase = () => {
             </button>
           ))}
         </div>
-      </ConfigSection>
+      </ConfigRow>
 
-      <ConfigSection label="Size">
+      <ConfigRow label="Size">
         <div className="flex gap-0.5">
           {sizes.map((s) => (
             <button
@@ -94,9 +94,9 @@ const ButtonShowcase = () => {
             </button>
           ))}
         </div>
-      </ConfigSection>
+      </ConfigRow>
 
-      <ConfigSection label="Options">
+      <ConfigRow label="Options">
         <div className="flex flex-col gap-1">
           {[
             { label: "With icon", value: withIcon, set: setWithIcon },
@@ -114,9 +114,9 @@ const ButtonShowcase = () => {
             </button>
           ))}
         </div>
-      </ConfigSection>
+      </ConfigRow>
 
-      <ConfigSection label="Browse">
+      <ConfigRow label="Browse">
         <div className="flex flex-col gap-1">
           {variants.map((v) => (
             <button
@@ -130,7 +130,7 @@ const ButtonShowcase = () => {
             </button>
           ))}
         </div>
-      </ConfigSection>
+      </ConfigRow>
     </>
   );
 
