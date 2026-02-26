@@ -1,6 +1,4 @@
 import { Link } from "react-router-dom";
-import { Spinner } from "@/components/ui/spinner";
-import { GooeySwitch } from "@/components/ui/gooey-switch";
 import { ArrowUpRight } from "lucide-react";
 
 const ITEMS = [
@@ -8,13 +6,11 @@ const ITEMS = [
     title: "Spinner",
     description: "15 variants · 4 sizes · color · speed",
     path: "/studio",
-    preview: <Spinner variant="material" size="sm" />,
   },
   {
     title: "Gooey Switch",
     description: "Spring & tween · 3 sizes · custom palette",
     path: "/studio/gooey-switch",
-    preview: <GooeySwitch size="sm" />,
   },
 ] as const;
 
@@ -43,13 +39,10 @@ export default function Playground() {
             <Link
               key={item.title}
               to={item.path}
-              className={`group flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-accent/40 ${
+              className={`group flex items-center justify-between px-4 py-3.5 transition-colors hover:bg-accent/40 ${
                 i > 0 ? "border-t border-border" : ""
               }`}
             >
-              <div className="w-7 h-7 flex items-center justify-center shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
-                {item.preview}
-              </div>
               <div className="flex-1 min-w-0">
                 <span className="text-[13px] text-foreground">{item.title}</span>
                 <span className="text-[11px] text-muted-foreground ml-2 hidden sm:inline">
