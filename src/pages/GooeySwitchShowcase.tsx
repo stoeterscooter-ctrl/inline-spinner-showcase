@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { GooeySwitch, type AnimationCfg } from "@/components/ui/gooey-switch";
-import { ComponentShowcase } from "@/components/ComponentShowcase";
+import { ComponentShowcase, type PropDef } from "@/components/ComponentShowcase";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -59,6 +59,13 @@ function SegmentedControl<T extends string>({
   );
 }
 
+const PROPS: PropDef[] = [
+  { name: "defaultOn", type: "boolean", default: "false", description: "Initial toggle state" },
+  { name: "onChange", type: "(on: boolean) => void", default: "—", description: "Called when toggled" },
+  { name: "size", type: '"sm" | "md" | "lg"', default: '"lg"', description: "Switch dimensions" },
+  { name: "anim", type: "AnimationCfg", default: "undefined", description: "Tween override (spring by default)" },
+];
+
 const GooeySwitchShowcase = () => {
   const [size, setSize] = useState<Size>("md");
   const [defaultOn, setDefaultOn] = useState(false);
@@ -103,6 +110,7 @@ const GooeySwitchShowcase = () => {
       fileName="gooey-switch.tsx"
       fileSource={gooeySwitchSource}
       codePreview={codeLine}
+      propsTable={PROPS}
       preview={
         <GooeySwitch key={key} size={size} anim={anim} defaultOn={defaultOn} />
       }
