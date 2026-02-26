@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { GooeySwitch, type AnimationCfg } from "@/components/ui/gooey-switch";
 import { ComponentShowcase, type PropDef } from "@/components/ComponentShowcase";
+import { ConfigRow } from "@/components/studio/ConfigRow";
+import { SegmentedControl } from "@/components/studio/SegmentedControl";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -19,45 +21,6 @@ const COLOR_PRESETS = [
   { name: "Amber", track: "30 20% 16%", trackActive: "35 50% 26%", blob: "40 90% 60%" },
   { name: "Rose", track: "350 20% 16%", trackActive: "350 45% 28%", blob: "345 80% 65%" },
 ] as const;
-
-function ConfigRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block font-medium">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function SegmentedControl<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: T[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex gap-0.5">
-      {options.map((o) => (
-        <button
-          key={o}
-          onClick={() => onChange(o)}
-          className={`flex-1 h-6 rounded text-[10px] transition-colors capitalize ${
-            value === o
-              ? "bg-accent text-accent-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {o}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 const PROPS: PropDef[] = [
   { name: "defaultOn", type: "boolean", default: "false", description: "Initial toggle state" },
