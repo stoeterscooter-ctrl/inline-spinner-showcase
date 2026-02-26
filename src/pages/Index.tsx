@@ -8,10 +8,8 @@ import {
   type SpinnerColor,
 } from "@/components/ui/spinner";
 import { ComponentShowcase } from "@/components/ComponentShowcase";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Check } from "lucide-react";
 // @ts-ignore — Vite raw import
 import spinnerSource from "@/components/ui/spinner.tsx?raw";
 
@@ -35,19 +33,15 @@ const colorSwatches: Record<SpinnerColor, string> = {
   destructive: "bg-destructive",
 };
 
-type DemoState = "idle" | "loading" | "done";
-
-function useDemoButton(delay = 1500) {
-  const [state, setState] = useState<DemoState>("idle");
-  const trigger = useCallback(() => {
-    if (state !== "idle") return;
-    setState("loading");
-    setTimeout(() => {
-      setState("done");
-      setTimeout(() => setState("idle"), 1000);
-    }, delay);
-  }, [state, delay]);
-  return { state, trigger };
+function ConfigRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block font-medium">
+        {label}
+      </label>
+      {children}
+    </div>
+  );
 }
 
 const Index = () => {
@@ -55,12 +49,6 @@ const Index = () => {
   const [size, setSize] = useState<SpinnerSize>("md");
   const [color, setColor] = useState<SpinnerColor>("default");
   const [speed, setSpeed] = useState(1);
-
-  const save = useDemoButton(1400);
-  const post = useDemoButton(1800);
-  const publish = useDemoButton(2000);
-  const google = useDemoButton(2200);
-  const github = useDemoButton(1600);
 
   const codeLine = `<Spinner variant="${variant}" size="${size}"${color !== "default" ? ` color="${color}"` : ""}${speed !== 1 ? ` speed={${speed}}` : ""} />`;
 
@@ -74,61 +62,55 @@ const Index = () => {
       preview={<Spinner variant={variant} size={size} color={color} speed={speed} />}
       configurator={
         <>
-          {/* Variant */}
-          <ConfigSection label="Variant">
-            <Select value={variant} onValueChange={(v) => setVariant(v as SpinnerVariant)}>
-              <SelectTrigger className="h-7 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {spinnerVariants.map((v) => (
-                  <SelectItem key={v} value={v} className="text-xs">
-                    {variantLabels[v]}
-                  </SelectItem>
+          <div className="grid grid-cols-2 gap-4">
+            <ConfigRow label="Variant">
+              <Select value={variant} onValueChange={(v) => setVariant(v as SpinnerVariant)}>
+                <SelectTrigger className="h-6 text-[10px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {spinnerVariants.map((v) => (
+                    <SelectItem key={v} value={v} className="text-xs">
+                      {variantLabels[v]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </ConfigRow>
+
+            <ConfigRow label="Size">
+              <div className="flex gap-0.5">
+                {sizes.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSize(s)}
+                    className={`flex-1 h-6 rounded text-[10px] transition-colors ${
+                      size === s ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {s}
+                  </button>
                 ))}
-              </SelectContent>
-            </Select>
-          </ConfigSection>
+              </div>
+            </ConfigRow>
+          </div>
 
-          {/* Size */}
-          <ConfigSection label="Size">
-            <div className="flex gap-0.5">
-              {sizes.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSize(s)}
-                  className={`flex-1 h-7 rounded text-[11px] transition-colors ${
-                    size === s ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </ConfigSection>
-
-          {/* Color */}
-          <ConfigSection label="Color">
-            <div className="flex gap-2">
+          <ConfigRow label="Color">
+            <div className="flex gap-1.5">
               {spinnerColors.map((c) => (
                 <button
                   key={c}
                   onClick={() => setColor(c)}
-                  className="flex flex-col items-center gap-1 group"
                   title={colorLabels[c]}
-                >
-                  <div
-                    className={`w-5 h-5 rounded-full ${colorSwatches[c]} transition-all ${
-                      color === c ? "ring-1 ring-ring ring-offset-1 ring-offset-background scale-110" : "opacity-50 group-hover:opacity-80"
-                    }`}
-                  />
-                </button>
+                  className={`w-5 h-5 rounded-full ${colorSwatches[c]} transition-all ${
+                    color === c ? "ring-2 ring-ring ring-offset-1 ring-offset-background scale-110" : "opacity-70 hover:opacity-100"
+                  }`}
+                />
               ))}
             </div>
-          </ConfigSection>
+          </ConfigRow>
 
-          {/* Speed */}
-          <ConfigSection label={`Speed · ${speed}×`}>
+          <ConfigRow label={`Speed · ${speed}×`}>
             <Slider
               value={[speed]}
               onValueChange={([v]) => setSpeed(v)}
@@ -137,11 +119,10 @@ const Index = () => {
               step={0.25}
               className="py-1"
             />
-          </ConfigSection>
+          </ConfigRow>
 
-          {/* Browse grid */}
-          <ConfigSection label="Browse">
-            <div className="grid grid-cols-4 gap-1">
+          <ConfigRow label="Browse">
+            <div className="grid grid-cols-5 gap-1">
               {spinnerVariants.map((v) => (
                 <button
                   key={v}
@@ -155,22 +136,11 @@ const Index = () => {
                 </button>
               ))}
             </div>
-          </ConfigSection>
+          </ConfigRow>
         </>
       }
     />
   );
 };
-
-function ConfigSection({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 block font-medium">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
 
 export default Index;
