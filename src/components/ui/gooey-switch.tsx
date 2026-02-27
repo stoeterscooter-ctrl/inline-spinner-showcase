@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { motion, useAnimationControls, useSpring, useTransform } from "framer-motion";
 
 export type AnimationCfg = {
   bezier?: readonly [number, number, number, number];
@@ -38,24 +38,36 @@ export function GooeySwitch({
 
   const hasAnim = !!anim;
   const duration = anim?.duration ?? 0.5;
-  const bezier = anim?.bezier ?? [0.25, 0.1, 0.25, 1];
+  const bezier = useMemo(
+    () => anim?.bezier ?? ([0.25, 0.1, 0.25, 1] as const),
+    [anim?.bezier]
+  );
 
-  const mainX = useSpring(isOn ? layout.travel : 0, {
+  // Animation controls for tween mode
+  const mainControls = useAnimationControls();
+  const trail1Controls = useAnimationControls();
+  const trail2Controls = useAnimationControls();
+  const trail3Controls = useAnimationControls();
+  const highlight1Controls = useAnimationControls();
+  const highlight2Controls = useAnimationControls();
+
+  // Springs for spring mode — use defaultOn so they only set initial position
+  const mainX = useSpring(defaultOn ? layout.travel : 0, {
     stiffness: 300,
     damping: 25,
     mass: 1.2,
   });
-  const trailX1 = useSpring(isOn ? layout.travel : 0, {
+  const trailX1 = useSpring(defaultOn ? layout.travel : 0, {
     stiffness: 200,
     damping: 20,
     mass: 1.5,
   });
-  const trailX2 = useSpring(isOn ? layout.travel : 0, {
+  const trailX2 = useSpring(defaultOn ? layout.travel : 0, {
     stiffness: 150,
     damping: 18,
     mass: 2,
   });
-  const trailX3 = useSpring(isOn ? layout.travel : 0, {
+  const trailX3 = useSpring(defaultOn ? layout.travel : 0, {
     stiffness: 120,
     damping: 22,
     mass: 2.5,
@@ -76,17 +88,57 @@ export function GooeySwitch({
     setIsOn((prev) => {
       const next = !prev;
       const target = next ? layout.travel : 0;
-      // Only drive spring values in spring mode; in tween mode, `animate` handles it
-      if (!hasAnim) {
+
+      if (hasAnim) {
+        // Tween mode: explicit controls.start for reliable bidirectional animation
+        const ease = bezier as unknown as [number, number, number, number];
+        mainControls.start({
+          x: target,
+          scaleX: [1, 1.25, 1],
+          scaleY: [1, 0.8, 1],
+          transition: { duration, ease },
+        });
+        trail1Controls.start({
+          x: target,
+          transition: { duration: duration * 1.4, ease },
+        });
+        trail2Controls.start({
+          x: target,
+          transition: { duration: duration * 1.3, ease },
+        });
+        trail3Controls.start({
+          x: target,
+          transition: { duration: duration * 1.2, ease },
+        });
+        highlight1Controls.start({
+          x: target,
+          transition: { duration, ease },
+        });
+        highlight2Controls.start({
+          x: target,
+          transition: { duration, ease },
+        });
+      } else {
+        // Spring mode
         mainX.set(target);
         trailX1.set(target);
         trailX2.set(target);
         trailX3.set(target);
       }
+
       onChange?.(next);
       return next;
     });
-  }, [layout.travel, onChange, hasAnim, mainX, trailX1, trailX2, trailX3]);
+  }, [layout.travel, onChange, hasAnim, bezier, duration, mainControls, trail1Controls, trail2Controls, trail3Controls, highlight1Controls, highlight2Controls, mainX, trailX1, trailX2, trailX3]);
+
+  const trailDefs = useMemo(
+    () => [
+      { controls: trail3Controls, springX: trailX3, scale: 0.45 },
+      { controls: trail2Controls, springX: trailX2, scale: 0.6 },
+      { controls: trail1Controls, springX: trailX1, scale: 0.75 },
+    ],
+    [trail3Controls, trail2Controls, trail1Controls, trailX3, trailX2, trailX1]
+  );
 
   return (
     <div className="relative">
@@ -131,25 +183,13 @@ export function GooeySwitch({
 
         <div className="absolute inset-0" style={{ filter: "url(#gooey-filter)" }}>
           {/* Trail blobs */}
-          {[
-            { x: trailX3, scale: 0.45 },
-            { x: trailX2, scale: 0.6 },
-            { x: trailX1, scale: 0.75 },
-          ].map(({ x, scale }, i) => (
+          {trailDefs.map(({ controls, springX, scale }, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full bg-gooey-blob"
-              animate={hasAnim ? { x: isOn ? layout.travel : 0 } : undefined}
-              transition={
-                hasAnim
-                  ? {
-                      duration: duration * (1.4 - i * 0.1),
-                      ease: bezier,
-                    }
-                  : undefined
-              }
+              animate={hasAnim ? controls : undefined}
               style={{
-                x: hasAnim ? undefined : x,
+                x: hasAnim ? undefined : springX,
                 left: layout.padding,
                 top: "50%",
                 translateY: "-50%",
@@ -162,12 +202,7 @@ export function GooeySwitch({
           {/* Main blob */}
           <motion.div
             className="absolute rounded-full bg-gooey-blob"
-            animate={
-              hasAnim
-                ? { x: isOn ? layout.travel : 0, scaleX: [1, 1.25, 1], scaleY: [1, 0.8, 1] }
-                : undefined
-            }
-            transition={hasAnim ? { duration, ease: bezier } : undefined}
+            animate={hasAnim ? mainControls : undefined}
             style={{
               x: hasAnim ? undefined : mainX,
               scaleX: hasAnim ? undefined : scaleX,
@@ -183,14 +218,7 @@ export function GooeySwitch({
           {/* Floating highlight blobs */}
           <motion.div
             className="absolute rounded-full bg-gooey-blob"
-            animate={{
-              x: hasAnim ? (isOn ? layout.travel : 0) : undefined,
-              y: isOn ? [0, -3, 0] : [0, 3, 0],
-            }}
-            transition={{
-              x: hasAnim ? { duration, ease: bezier } : undefined,
-              y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-            }}
+            animate={hasAnim ? highlight1Controls : undefined}
             style={{
               x: hasAnim ? undefined : mainX,
               left: layout.padding + layout.cfg.blob * 0.15,
@@ -201,14 +229,7 @@ export function GooeySwitch({
           />
           <motion.div
             className="absolute rounded-full bg-gooey-blob"
-            animate={{
-              x: hasAnim ? (isOn ? layout.travel : 0) : undefined,
-              y: isOn ? [0, 4, 0] : [0, -4, 0],
-            }}
-            transition={{
-              x: hasAnim ? { duration, ease: bezier } : undefined,
-              y: { duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 },
-            }}
+            animate={hasAnim ? highlight2Controls : undefined}
             style={{
               x: hasAnim ? undefined : mainX,
               left: layout.padding + layout.cfg.blob * 0.2,
