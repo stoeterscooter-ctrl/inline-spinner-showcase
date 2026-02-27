@@ -33,7 +33,6 @@ const GooeySwitchShowcase = () => {
   const [colorIdx, setColorIdx] = useState(0);
   const [key, setKey] = useState(0);
   const [animValue, setAnimValue] = useState<AnimationValue>({
-    enabled: false,
     duration: 0.5,
     bezier: [0.25, 0.1, 0.25, 1.0],
   });
@@ -52,16 +51,13 @@ const GooeySwitchShowcase = () => {
     };
   }, [preset]);
 
-  const anim = useMemo<AnimationCfg | undefined>(
-    () =>
-      animValue.enabled
-        ? { duration: animValue.duration, bezier: animValue.bezier }
-        : undefined,
+  const anim = useMemo<AnimationCfg>(
+    () => ({ duration: animValue.duration, bezier: animValue.bezier }),
     [animValue]
   );
 
   const bezierStr = `[${animValue.bezier.join(", ")}]`;
-  const codeLine = `<GooeySwitch size="${size}"${defaultOn ? " defaultOn" : ""}${animValue.enabled ? ` anim={{ duration: ${animValue.duration}, bezier: ${bezierStr} }}` : ""} />`;
+  const codeLine = `<GooeySwitch size="${size}"${defaultOn ? " defaultOn" : ""} anim={{ duration: ${animValue.duration}, bezier: ${bezierStr} }} />`;
 
   return (
     <ComponentShowcase
