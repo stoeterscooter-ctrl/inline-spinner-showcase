@@ -60,6 +60,7 @@ const Index = () => {
       preview={<Spinner variant={variant} size={size} color={color} speed={speed} />}
       configurator={
         <>
+          {/* Row 1: Variant + Size side by side */}
           <div className="grid grid-cols-2 gap-4">
             <ConfigRow label="Variant">
               <Select value={variant} onValueChange={(v) => setVariant(v as SpinnerVariant)}>
@@ -85,44 +86,51 @@ const Index = () => {
             </ConfigRow>
           </div>
 
-          <ConfigRow label="Color">
-            <div className="flex gap-1.5">
-              {spinnerColors.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setColor(c)}
-                  title={colorLabels[c]}
-                  className={`w-5 h-5 rounded-full ${colorSwatches[c]} transition-all ${
-                    color === c ? "ring-2 ring-ring ring-offset-1 ring-offset-background scale-110" : "opacity-70 hover:opacity-100"
-                  }`}
-                />
-              ))}
-            </div>
-          </ConfigRow>
+          {/* Row 2: Color + Speed side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            <ConfigRow label="Color">
+              <div className="flex gap-1.5">
+                {spinnerColors.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setColor(c)}
+                    title={colorLabels[c]}
+                    className={`w-5 h-5 rounded-full ${colorSwatches[c]} transition-all ${
+                      color === c ? "ring-2 ring-ring ring-offset-1 ring-offset-background scale-110" : "opacity-70 hover:opacity-100"
+                    }`}
+                  />
+                ))}
+              </div>
+            </ConfigRow>
 
-          <ConfigRow label={`Speed · ${speed}×`}>
-            <Slider
-              value={[speed]}
-              onValueChange={([v]) => setSpeed(v)}
-              min={0.25}
-              max={3}
-              step={0.25}
-              className="py-1"
-            />
-          </ConfigRow>
+            <ConfigRow label={`Speed · ${speed}×`}>
+              <Slider
+                value={[speed]}
+                onValueChange={([v]) => setSpeed(v)}
+                min={0.25}
+                max={3}
+                step={0.25}
+                className="py-1"
+              />
+            </ConfigRow>
+          </div>
 
-          <ConfigRow label="Browse">
-            <div className="grid grid-cols-5 gap-1">
+          {/* Browse grid — all variants at a glance */}
+          <ConfigRow label="All variants">
+            <div className="grid grid-cols-5 gap-0.5">
               {spinnerVariants.map((v) => (
                 <button
                   key={v}
                   onClick={() => setVariant(v)}
-                  className={`aspect-square rounded flex items-center justify-center transition-colors ${
-                    variant === v ? "bg-accent" : "hover:bg-accent/50"
+                  className={`flex flex-col items-center gap-1 py-2 rounded text-[8px] transition-colors ${
+                    variant === v
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                   }`}
                   title={variantLabels[v]}
                 >
                   <Spinner variant={v} size="xs" color={color} speed={speed} />
+                  <span className="truncate w-full text-center leading-none">{variantLabels[v]}</span>
                 </button>
               ))}
             </div>
