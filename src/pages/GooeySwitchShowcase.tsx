@@ -3,11 +3,9 @@ import { GooeySwitch, type AnimationCfg } from "@/components/ui/gooey-switch";
 import { ComponentShowcase, type PropDef } from "@/components/ComponentShowcase";
 import { ConfigRow } from "@/components/studio/ConfigRow";
 import { SegmentedControl } from "@/components/studio/SegmentedControl";
-import { Slider } from "@/components/ui/slider";
+import { AnimationEditor, type AnimationValue } from "@/components/studio/AnimationEditor";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
 // @ts-ignore — Vite raw import
 import gooeySwitchSource from "@/components/ui/gooey-switch.tsx?raw";
 
@@ -32,14 +30,13 @@ const PROPS: PropDef[] = [
 const GooeySwitchShowcase = () => {
   const [size, setSize] = useState<Size>("md");
   const [defaultOn, setDefaultOn] = useState(false);
-  const [tweenEnabled, setTweenEnabled] = useState(false);
-  const [duration, setDuration] = useState(0.5);
-  const [b0, setB0] = useState(0.25);
-  const [b1, setB1] = useState(0.1);
-  const [b2, setB2] = useState(0.25);
-  const [b3, setB3] = useState(1.0);
   const [colorIdx, setColorIdx] = useState(0);
   const [key, setKey] = useState(0);
+  const [animValue, setAnimValue] = useState<AnimationValue>({
+    enabled: false,
+    duration: 0.5,
+    bezier: [0.25, 0.1, 0.25, 1.0],
+  });
 
   const preset = COLOR_PRESETS[colorIdx];
 
@@ -57,14 +54,14 @@ const GooeySwitchShowcase = () => {
 
   const anim = useMemo<AnimationCfg | undefined>(
     () =>
-      tweenEnabled
-        ? { duration, bezier: [b0, b1, b2, b3] as readonly [number, number, number, number] }
+      animValue.enabled
+        ? { duration: animValue.duration, bezier: animValue.bezier }
         : undefined,
-    [tweenEnabled, duration, b0, b1, b2, b3]
+    [animValue]
   );
 
-  const bezierStr = `[${b0}, ${b1}, ${b2}, ${b3}]`;
-  const codeLine = `<GooeySwitch size="${size}"${defaultOn ? " defaultOn" : ""}${tweenEnabled ? ` anim={{ duration: ${duration}, bezier: ${bezierStr} }}` : ""} />`;
+  const bezierStr = `[${animValue.bezier.join(", ")}]`;
+  const codeLine = `<GooeySwitch size="${size}"${defaultOn ? " defaultOn" : ""}${animValue.enabled ? ` anim={{ duration: ${animValue.duration}, bezier: ${bezierStr} }}` : ""} />`;
 
   return (
     <ComponentShowcase
@@ -123,65 +120,7 @@ const GooeySwitchShowcase = () => {
             </div>
           </ConfigRow>
 
-          <ConfigRow label="Animation">
-            <div className="flex items-center gap-2">
-              <Switch
-                id="tween-mode"
-                checked={tweenEnabled}
-                onCheckedChange={setTweenEnabled}
-              />
-              <Label htmlFor="tween-mode" className="text-[10px] text-muted-foreground">
-                {tweenEnabled ? "Tween" : "Spring"}
-              </Label>
-            </div>
-          </ConfigRow>
-
-          {tweenEnabled && (
-            <>
-              <ConfigRow label={`Duration · ${duration.toFixed(2)}s`}>
-                <Slider
-                  value={[duration]}
-                  onValueChange={([v]) => setDuration(v)}
-                  min={0.2}
-                  max={1.2}
-                  step={0.05}
-                  className="py-1"
-                />
-              </ConfigRow>
-
-              <Collapsible>
-                <CollapsibleTrigger className="flex items-center gap-1 text-[10px] uppercase tracking-widest text-muted-foreground font-medium hover:text-foreground transition-colors group w-full">
-                  Bezier curve
-                  <ChevronDown className="h-3 w-3 transition-transform group-data-[state=open]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="flex flex-col gap-2 pt-2">
-                    {[
-                      { label: "x1", value: b0, set: setB0 },
-                      { label: "y1", value: b1, set: setB1 },
-                      { label: "x2", value: b2, set: setB2 },
-                      { label: "y2", value: b3, set: setB3 },
-                    ].map(({ label, value, set }) => (
-                      <div key={label} className="flex items-center gap-2">
-                        <span className="text-[10px] text-muted-foreground w-5 shrink-0">{label}</span>
-                        <Slider
-                          value={[value]}
-                          onValueChange={([v]) => set(v)}
-                          min={0}
-                          max={1}
-                          step={0.05}
-                          className="flex-1"
-                        />
-                        <span className="text-[10px] tabular-nums text-muted-foreground w-7 text-right">
-                          {value.toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </>
-          )}
+          <AnimationEditor value={animValue} onChange={setAnimValue} />
         </>
       }
     />
