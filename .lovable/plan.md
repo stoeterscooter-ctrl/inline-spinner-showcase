@@ -1,34 +1,20 @@
 
 
-## Problem
+## Root Cause
 
-The GooeySwitch showcase page has two issues:
+The `GooeySwitch` uses Framer Motion's reactive `animate` prop to drive tween animations, but `useSpring` hooks are also initialized with `isOn ? layout.travel : 0` — meaning they re-animate on every toggle regardless of mode. Combined with inline `animate` objects containing static keyframe arrays (`scaleX: [1, 1.25, 1]`), Framer Motion's change detection can fail to properly trigger the reverse tween.
 
-1. **The switch defaults to `size="lg"`** (120x56px) which is oversized for a showcase context
-2. **The `ComponentShowcase` layout** uses a side-by-side split (preview + 224px configurator panel) which, inside the narrow 520px Studio container, feels cramped and cluttered
-3. Too many configurator options visible at once (size, default state, color, animation mode, duration, bezier curve)
+## Fix: Use `useAnimationControls` for tween mode
 
-## Plan
+Replace the reactive `animate` prop approach with explicit `controls.start()` calls in the toggle handler. This guarantees both directions animate reliably.
 
-### 1. Simplify the showcase layout
+### Changes to `src/components/ui/gooey-switch.tsx`
 
-Restructure `ComponentShowcase` to stack vertically instead of side-by-side, fitting the narrow 520px container naturally:
-- Preview area on top (centered, modest height)
-- Configurator below, using the full width
-- Code preview at the bottom
-
-### 2. Reduce default switch size
-
-Change the default size in `GooeySwitchShowcase` from `"lg"` to `"md"`.
-
-### 3. Declutter the configurator
-
-- Collapse the bezier controls into a collapsible section (only shown when tween is enabled and user expands it)
-- Tighten spacing between config sections
-- Keep the color grid to 3 columns but reduce the number of presets or make them smaller dots instead of labeled buttons
-
-### Files changed
-
-- **`src/components/ComponentShowcase.tsx`** — switch from horizontal split to vertical stack layout
-- **`src/pages/GooeySwitchShowcase.tsx`** — default to `"md"`, simplify configurator density
+1. Import `useAnimationControls` from `framer-motion`
+2. Create animation controls for main blob, trail blobs, and highlight blobs
+3. In `onToggle`, when `hasAnim` is true, call `controls.start({ x: target, ... })` with the tween transition config explicitly
+4. When `!hasAnim` (spring mode), keep existing spring `.set()` logic unchanged
+5. Attach controls to each `motion.div` via the `animate` prop (replacing the reactive object)
+6. Memoize the `bezier` value with `useMemo` to prevent unnecessary array allocations
+7. Stabilize `useSpring` initial values to use `defaultOn` (mount-time only) instead of reactive `isOn`, preventing springs from firing in tween mode
 
