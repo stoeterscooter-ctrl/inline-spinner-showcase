@@ -76,14 +76,17 @@ export function GooeySwitch({
     setIsOn((prev) => {
       const next = !prev;
       const target = next ? layout.travel : 0;
-      mainX.set(target);
-      trailX1.set(target);
-      trailX2.set(target);
-      trailX3.set(target);
+      // Only drive spring values in spring mode; in tween mode, `animate` handles it
+      if (!hasAnim) {
+        mainX.set(target);
+        trailX1.set(target);
+        trailX2.set(target);
+        trailX3.set(target);
+      }
       onChange?.(next);
       return next;
     });
-  }, [layout.travel, onChange, mainX, trailX1, trailX2, trailX3]);
+  }, [layout.travel, onChange, hasAnim, mainX, trailX1, trailX2, trailX3]);
 
   return (
     <div className="relative">
